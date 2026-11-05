@@ -1,0 +1,37 @@
+{
+  "_note": "Example output written for this fictional plan, in the shape Claude returns. 'repair' is Claude's second try after Signalpost listed the rules the first draft broke. Not a live AI response.",
+  "Launch trailer": {
+    "posts": [
+      { "network": "instagram", "caption": "You deliver letters. The tide decides when.\n\nSaltmarsh Courier is out on Steam this Thursday, 12 November. A cozy delivery game about a postal courier in a tidal village, made by four of us in Lisbon.\n\nWishlist link in our bio.\n\n#indiegame #cozygames #gamedev #indiedev #steam #cozygaming #wholesomegames #newgame", "first_comment": null },
+      { "network": "tiktok", "caption": "You deliver letters. The tide decides when. 🌊 Our cozy delivery game Saltmarsh Courier is out on Steam this Thursday. #indiegame #cozygames #gamedev #gaming" },
+      { "network": "youtube", "title": "Saltmarsh Courier: launch trailer | Out on Steam 12 November", "caption": "You deliver letters. The tide decides when.\n\nSaltmarsh Courier is a cozy delivery game about a postal courier in a tidal village. It's out on Steam on Thursday 12 November.\n\nStore page: https://brightline.example/saltmarsh\n\nMade by Brightline Studio, four people in Lisbon." }
+    ],
+    "repair": [
+      { "network": "instagram", "caption": "You deliver letters. The tide decides when.\n\nSaltmarsh Courier is out on Steam this Thursday, 12 November. A cozy delivery game about a postal courier in a tidal village, made by four of us in Lisbon.\n\nWishlist link in our bio.\n\n#indiegame #cozygames #gamedev #steam", "first_comment": null },
+      { "network": "tiktok", "caption": "You deliver letters. The tide decides when. 🌊 Our cozy delivery game Saltmarsh Courier is out on Steam this Thursday. #indiegame #cozygames #gamedev #gaming" },
+      { "network": "youtube", "title": "Saltmarsh Courier: launch trailer | Out on Steam 12 November", "caption": "You deliver letters. The tide decides when.\n\nSaltmarsh Courier is a cozy delivery game about a postal courier in a tidal village. It's out on Steam on Thursday 12 November.\n\nStore page: https://brightline.example/saltmarsh\n\nMade by Brightline Studio, four people in Lisbon." }
+    ]
+  },
+  "Screenshot carousel": {
+    "posts": [
+      { "network": "instagram", "caption": "Five screenshots, one day before launch.\n\nThis is Saltmarsh Courier: a cozy delivery game about a postal courier in a tidal village. Which one would you frame?\n\nOut tomorrow on Steam. Link in bio.\n\n#indiegame #cozygames #gamedev", "alt_text": "Five screenshots from Saltmarsh Courier, a cozy delivery game set in a tidal village." },
+      { "network": "linkedin", "caption": "Four people. Two years. One small game, made in Lisbon.\n\nTomorrow we release Saltmarsh Courier, a cozy delivery game about a postal courier in a tidal village. These are five screenshots from the build we're shipping.\n\nWith a team this size, everyone does a bit of everything. We wouldn't have it any other way.\n\nIf you've followed along, thank you. If you're new here: it's out on Steam on Thursday 12 November.\n\nhttps://brightline.example/saltmarsh\n\n#gamedev #indiegames #Lisbon", "alt_text": "Five screenshots from Saltmarsh Courier, a cozy delivery game set in a tidal village." }
+    ]
+  },
+  "Launch announcement": {
+    "posts": [
+      { "network": "x", "caption": "Saltmarsh Courier is out now on Steam.\n\nYou deliver letters. The tide decides when.\n\nFour of us made it in Lisbon over two years. Thank you for waiting with us. #indiegame" },
+      { "network": "threads", "caption": "It's out. Saltmarsh Courier is on Steam now.\n\nYou deliver letters. The tide decides when. Four of us made it in Lisbon over two years, and today you can play it.\n\nIf you pick it up, tell us who got the first letter.\n\nhttps://brightline.example/saltmarsh", "topic_tag": "Indie Games" }
+    ]
+  },
+  "Devlog: the tide system": {
+    "posts": [
+      { "network": "youtube", "title": "Devlog 4: How we built the tide system in Saltmarsh Courier", "caption": "The tide decides when your letters arrive, so the tide had to work. In this devlog we walk through how we built the tide system for Saltmarsh Courier.\n\nSaltmarsh Courier is out now on Steam: https://brightline.example/saltmarsh\n\nWe're Brightline Studio, four people making games in Lisbon.", "first_comment": "What should the next devlog cover? Tell us below." }
+    ]
+  },
+  "Fan art story": {
+    "posts": [
+      { "network": "instagram", "caption": "Fan art by @mira.draws. Thank you, Mira.", "alt_text": "Fan art of Saltmarsh Courier by @mira.draws." }
+    ]
+  }
+}
