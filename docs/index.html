@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signalpost</title>
+<meta name="description" content="Tell Claude what goes where and when. Signalpost writes every post for each network, checks it against that network's rules, and schedules it only after you approve.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='3' width='3' height='27' rx='1.5' fill='%23181a1f'/%3E%3Cpath d='M8 5h18l-5 6 5 6H8z' fill='%23f0561d'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f4f1; --surface:#ffffff; --ink:#181a1f; --muted:#5c616b; --line:#e0ded8; --soft:#efede8;
+  --flag:#e14d12; --flag-ink:#b33a0a; --flag-soft:#fde9df;
+  --ok:#17784a; --ok-soft:#e2f3ea; --warn:#9a6200; --warn-soft:#fbf0d9; --block:#b42318; --block-soft:#fbe5e3;
+  --shadow:0 1px 2px rgba(20,20,30,.06),0 4px 16px rgba(20,20,30,.05);
+  --display:"Bricolage Grotesque",Georgia,serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"DM Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121317; --surface:#1b1d23; --ink:#eceae6; --muted:#a2a6af; --line:#2e3139; --soft:#23262d;
+    --flag:#ff6a2b; --flag-ink:#ff8a57; --flag-soft:#3a2117;
+    --ok:#52c48a; --ok-soft:#163326; --warn:#e2ad4a; --warn-soft:#382b12; --block:#ff7b6e; --block-soft:#3d1c19;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121317; --surface:#1b1d23; --ink:#eceae6; --muted:#a2a6af; --line:#2e3139; --soft:#23262d;
+  --flag:#ff6a2b; --flag-ink:#ff8a57; --flag-soft:#3a2117;
+  --ok:#52c48a; --ok-soft:#163326; --warn:#e2ad4a; --warn-soft:#382b12; --block:#ff7b6e; --block-soft:#3d1c19;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25); color-scheme:dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);overflow-x:hidden}
+a{color:var(--flag-ink)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(26px,4vw,36px);font-weight:800}
+h3{font-size:19px;font-weight:700}
+code,pre,.mono{font-family:var(--mono);font-size:.88em}
+button{font:inherit;color:inherit}
+.muted{color:var(--muted)}
+section{padding:56px 0}
+.kicker{font:500 12px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--flag-ink);margin-bottom:10px}
+
+/* Header */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;height:58px}
+.logo{display:flex;align-items:center;gap:9px;font:800 20px var(--display);text-decoration:none;color:var(--ink)}
+.logo svg{width:24px;height:24px}
+nav.links{margin-left:auto;display:flex;gap:18px;align-items:center}
+nav.links a{color:var(--muted);text-decoration:none;font-size:15px}
+nav.links a:hover{color:var(--ink)}
+.theme{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+@media (max-width:640px){nav.links a.hide-sm{display:none}}
+
+/* Hero */
+.hero{padding:64px 0 36px}
+.hero h1{font-size:clamp(38px,7vw,74px);font-weight:800;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--flag)}
+.hero p.lede{font-size:clamp(17px,2.2vw,20px);max-width:62ch;margin:20px 0 0;color:var(--muted)}
+.hero p.lede b{color:var(--ink);font-weight:700}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--ink);font-weight:700;cursor:pointer}
+.btn.primary{background:var(--flag);border-color:var(--flag);color:#fff}
+.btn.primary:hover{background:var(--flag-ink)}
+.note{margin-top:18px;font-size:14px;color:var(--muted)}
+.say{margin-top:34px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.bubble{background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:14px 16px;box-shadow:var(--shadow);font-size:15px}
+.bubble .who{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:4px}
+
+/* Flow */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:28px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.flow .step{padding:18px 18px 20px;border-right:1px solid var(--line);position:relative}
+.flow .step:last-child{border-right:0}
+.flow .n{font:500 12px var(--mono);color:var(--flag-ink)}
+.flow h3{margin:6px 0 6px}
+.flow p{margin:0;font-size:14.5px;color:var(--muted)}
+@media (max-width:820px){.flow{grid-template-columns:1fr 1fr}.flow .step:nth-child(2){border-right:0}.flow .step:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:480px){.flow{grid-template-columns:1fr}.flow .step{border-right:0;border-bottom:1px solid var(--line)}.flow .step:last-child{border-bottom:0}}
+
+/* Demo */
+.demo-head{display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;margin-bottom:18px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:14.5px;text-align:left}
+.tab small{display:block;color:var(--muted);font-size:12px}
+.tab[aria-selected="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.tab[aria-selected="true"] small{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.grid2{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:960px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-width:0}
+.card > .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.card > .hd h3{font-size:16px}
+.card > .bd{padding:14px 16px}
+.file{font:500 12px var(--mono);color:var(--muted)}
+.plan{font:14px/1.6 var(--body);margin:0}
+.plan .ln{padding:3px 8px;margin:0 -8px;border-radius:6px;border-left:3px solid transparent;white-space:pre-wrap;word-break:break-word}
+.plan .ln.h{font:700 17px var(--display);margin-bottom:4px}
+.plan .ln.q{color:var(--muted);font-style:italic}
+.plan .ln.used{cursor:pointer}
+.plan .ln.used:hover{background:var(--soft)}
+.plan .ln.on{background:var(--flag-soft);border-left-color:var(--flag)}
+.plan .ln.sus{background:var(--block-soft);border-left-color:var(--block);color:var(--ink);font-style:normal}
+.plan .tag{display:inline-block;font:500 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.tag.ig{background:var(--block);color:#fff}
+.media{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.tile{border:1px solid var(--line);border-radius:8px;padding:6px;font:11px/1.3 var(--mono);color:var(--muted);background:var(--soft);min-width:0}
+.tile .thumb{background:repeating-linear-gradient(135deg,var(--line) 0 6px,transparent 6px 12px);border-radius:4px;margin:0 auto 5px;display:grid;place-items:center;color:var(--muted);font-size:13px}
+.tile .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+
+.stage{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.stage button{border:0;background:none;padding:8px 12px;cursor:pointer;font-size:14px;color:var(--muted)}
+.stage button[aria-pressed="true"]{background:var(--soft);color:var(--ink);font-weight:700}
+
+/* Calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal .dow{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft)}
+.cal .day{min-height:92px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .day .d{font:500 12px var(--mono);color:var(--muted)}
+.cal .day.out{background:color-mix(in srgb,var(--soft) 50%,transparent)}
+.cal .day.out .d{opacity:.45}
+.cal .day.today .d{color:#fff;background:var(--flag);border-radius:999px;padding:0 6px;align-self:flex-start}
+.chip{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:4px 6px;cursor:pointer;font-size:12px;line-height:1.25;min-width:0}
+.chip .t{font:500 10.5px var(--mono);color:var(--muted)}
+.chip .l{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.chip .dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.chip[aria-pressed="true"]{outline:2px solid var(--flag);outline-offset:1px}
+.chip.st-scheduled{border-color:var(--flag);background:var(--flag-soft)}
+.chip.st-waiting{border-style:dashed;border-color:var(--muted)}
+.chip.st-needs-answer{border-style:dashed;border-color:var(--warn);background:var(--warn-soft)}
+.net{display:inline-flex;align-items:center;gap:3px;font:500 10px/1 var(--mono);padding:2px 4px;border-radius:4px;background:var(--soft);color:var(--ink);white-space:nowrap}
+.net::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c,#888)}
+.net.off{text-decoration:line-through;opacity:.55}
+.net.sch{background:var(--surface);box-shadow:inset 0 0 0 1px var(--flag)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);padding:10px 16px;border-top:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border-radius:3px;border:1px solid var(--line);display:inline-block}
+.agenda{display:none}
+@media (max-width:700px){.cal{display:none}.agenda{display:block}}
+.agenda .ad{padding:10px 0;border-bottom:1px solid var(--line)}
+.agenda .ad:last-child{border-bottom:0}
+.agenda .ad h4{margin:0 0 6px;font:700 14px var(--display)}
+.agenda .chip{margin-bottom:6px;font-size:13.5px}
+.undated{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.undated .chip{width:auto;max-width:100%}
+
+/* Detail */
+.detail{margin-top:18px}
+.dhead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;justify-content:space-between}
+.dhead h3{font-size:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--mono);padding:3px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.pill.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.pill.block{color:var(--block);background:var(--block-soft);border-color:transparent}
+.pill.flag{color:var(--flag-ink);background:var(--flag-soft);border-color:transparent}
+.question{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--ink);font-size:14.5px}
+.question b{color:var(--warn)}
+.nets{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 12px}
+.nets button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;display:inline-flex;gap:7px;align-items:center}
+.nets button[aria-selected="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.nets button .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.nets button .s{font:500 10.5px var(--mono);padding:1px 5px;border-radius:4px}
+.s.ok{background:var(--ok-soft);color:var(--ok)}.s.warn{background:var(--warn-soft);color:var(--warn)}.s.block{background:var(--block-soft);color:var(--block)}
+.pview{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.pview{grid-template-columns:minmax(0,1fr)}}
+.phone{border:1px solid var(--line);border-radius:18px;background:var(--surface);overflow:hidden;box-shadow:var(--shadow);max-width:340px}
+.phone .bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.phone .av{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:700 12px var(--display)}
+.phone .shot{background:repeating-linear-gradient(135deg,var(--soft) 0 10px,var(--surface) 10px 20px);display:grid;place-items:center;color:var(--muted);font:12px var(--mono);text-align:center;padding:10px;max-height:340px;position:relative}
+.phone .shot .count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;padding:1px 7px;font-size:11px}
+.phone .txt{padding:10px 12px 14px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.phone .ttl{font-weight:700;font-size:15px;padding:10px 12px 0}
+.phone .lnk{margin:0 12px 12px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:12px var(--mono);color:var(--muted);word-break:break-all}
+.phone .cm{margin:0 12px 12px;padding:8px 10px;background:var(--soft);border-radius:8px;font-size:13px}
+.phone .ht{color:var(--flag-ink)}
+.phone .url{color:var(--flag-ink);text-decoration:underline}
+.side h4{margin:0 0 8px;font:700 15px var(--display)}
+.checks{list-style:none;padding:0;margin:0 0 16px}
+.checks li{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+.checks li:last-child{border-bottom:0}
+.checks .m{flex:0 0 auto;font:500 10.5px var(--mono);padding:2px 6px;border-radius:4px;margin-top:2px;text-transform:uppercase}
+.fix{padding:10px 12px;border-radius:10px;background:var(--ok-soft);font-size:14px;margin-bottom:14px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:13.5px;margin:0 0 14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;word-break:break-word}
+details.raw{border:1px solid var(--line);border-radius:10px;margin-top:10px;background:var(--soft)}
+details.raw summary{cursor:pointer;padding:9px 12px;font-weight:700;font-size:14px}
+details.raw pre{margin:0;padding:10px 12px;overflow:auto;max-height:380px;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;border-top:1px solid var(--line);background:var(--surface)}
+table.req{width:100%;border-collapse:collapse;font:12px var(--mono);background:var(--surface)}
+table.req td{padding:5px 10px;border-top:1px solid var(--line);vertical-align:top;word-break:break-word}
+table.req td:first-child{color:var(--muted);white-space:nowrap;width:1%}
+
+/* PR */
+.pr .hd .state{display:inline-flex;align-items:center;gap:6px;font:700 13px var(--body);padding:4px 10px;border-radius:999px;background:var(--ok);color:#fff}
+.pr .hd .state.merged{background:#6e40c9}
+.md{font-size:14.5px;min-width:0}
+.md h2{font-size:20px;margin:4px 0 10px}.md h3{font-size:16px;margin:16px 0 6px}
+.md p{margin:0 0 10px}.md ul{margin:0 0 10px;padding-left:20px}.md li{margin:3px 0}
+.md table{border-collapse:collapse;font-size:13px;margin:6px 0 12px;display:block;overflow-x:auto;max-width:100%}
+.md th,.md td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:nowrap}
+.md th{background:var(--soft)}
+.md code{background:var(--soft);padding:1px 4px;border-radius:4px}
+.merge{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--line);background:var(--soft);border-radius:0 0 14px 14px}
+.merge .btn.primary{background:var(--ok);border-color:var(--ok)}
+.done{padding:14px 16px;border-top:1px solid var(--line)}
+.done ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+
+/* Rules */
+.rules{overflow-x:auto}
+table.rt{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+table.rt th,table.rt td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.rt th{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+table.rt td.n{font-weight:700;white-space:nowrap}
+table.rt td .mono{color:var(--muted)}
+
+/* Setup & safeguards */
+.opt h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.opt ol{padding-left:20px;margin:10px 0 0}
+.opt li{margin:6px 0}
+pre.code{background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:13px;margin:12px 0 0}
+.safe{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.safe .card{padding:16px}
+.safe h3{font-size:17px;margin-bottom:6px}
+.safe p{margin:0;font-size:14.5px;color:var(--muted)}
+.compare{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:16px}
+.compare th,.compare td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+.compare th{font:500 11px var(--mono);text-transform:uppercase;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:30px 0 50px;font-size:14px;color:var(--muted)}
+footer .row{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between}
+footer a{color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@keyframes pop{0%{transform:scale(.96);opacity:.4}100%{transform:none;opacity:1}}
+.pop{animation:pop .35s ease-out}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Signalpost home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="3" width="3" height="27" rx="1.5" fill="currentColor"/><path d="M8 5h18l-5 6 5 6H8z" fill="var(--flag)"/></svg>
+      Signalpost
+    </a>
+    <nav class="links">
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#demo">Demo</a>
+      <a href="#setup" class="hide-sm">Run it yourself</a>
+      <a href="https://github.com/amachadod/signalpost">GitHub</a>
+      <button class="theme" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="kicker">Social media scheduling with Claude</div>
+      <h1>Say what goes where and when. <em>Approve it.</em> Done.</h1>
+      <p class="lede">Give Signalpost your reels, carousels and photos, and say in plain words which network each one goes to and when. Claude writes <b>a native post for every network</b> in your brand's voice, Signalpost <b>checks each one against that network's rules</b>, and nothing is scheduled until <b>you approve it in a pull request</b>. Then it goes to Upload-Post and onto your content calendar.</p>
+      <div class="cta">
+        <a class="btn primary" href="#demo">See a launch week planned</a>
+        <a class="btn" href="https://github.com/amachadod/signalpost">View the code</a>
+      </div>
+      <p class="note">Portfolio project by Alberto Machado Domínguez. The brands, posts and media in the demo are fictional, and the Claude output is example output run through the real code.</p>
+      <div class="say" aria-label="Examples of plan lines">
+        <div class="bubble"><span class="who">You write</span>"Trailer: Instagram reel, TikTok and YouTube Shorts on Tuesday at 19:00."</div>
+        <div class="bubble"><span class="who">You write</span>"Room photos as a carousel for Instagram and Pinterest, Wednesday at noon. Pinterest links to the booking page."</div>
+        <div class="bubble"><span class="who">Signalpost answers</span>"9 posts ready. The fan art story has no time yet, and TikTok isn't on your Upload-Post plan. Merge to approve."</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="padding-top:20px">
+    <div class="wrap">
+      <div class="kicker">How it works</div>
+      <h2>Four steps, one approval</h2>
+      <div class="flow">
+        <div class="step"><span class="n">01 · Plan</span><h3>Say it in plain words</h3><p>Drop media in <code>media/</code> and write <code>plan.md</code>: what goes where, and when. Any language, any time zone.</p></div>
+        <div class="step"><span class="n">02 · Write</span><h3>Claude writes per network</h3><p>Reads the plan into posts, then writes each network's version in your voice from <code>brand.md</code>: hooks, titles, hashtags, first comments.</p></div>
+        <div class="step"><span class="n">03 · Check</span><h3>Every rule, every post</h3><p>Lengths, hashtags, titles, formats, video length and shape, links, daily caps. A broken rule gets one rewrite; what's still broken is blocked.</p></div>
+        <div class="step"><span class="n">04 · Approve</span><h3>Merge to schedule</h3><p>Drafts arrive as a pull request you can edit. Merging schedules them with Upload-Post and updates the calendar. Delete a draft later to cancel it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <div class="demo-head">
+        <div>
+          <div class="kicker">Live demo · Monday 9 November 2026</div>
+          <h2>Pick a campaign</h2>
+          <p class="muted" style="margin:8px 0 0;max-width:60ch">Each one ran through the real Signalpost code. Click a post in the calendar to see what was written for each network and every check it passed or failed.</p>
+        </div>
+        <div class="tabs" role="tablist" id="exTabs"></div>
+      </div>
+
+      <div class="grid2">
+        <div style="display:grid;gap:18px;min-width:0">
+          <div class="card">
+            <div class="hd"><h3>Your plan</h3><span class="file">plan.md</span></div>
+            <div class="bd"><div class="plan" id="plan"></div></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h3>Your media</h3><span class="file">media/</span></div>
+            <div class="bd"><div class="media" id="media"></div><p class="muted" style="font-size:13px;margin:10px 0 0">Signalpost measures every file itself: size, shape and length, so it knows a Reel is vertical or a Short is under 3 minutes.</p></div>
+          </div>
+        </div>
+
+        <div style="display:grid;gap:18px;min-width:0">
+          <div class="card">
+            <div class="hd">
+              <h3 id="calTitle">Content calendar</h3>
+              <div class="stage" role="group" aria-label="Before or after approval">
+                <button id="stBefore" aria-pressed="true">Before you merge</button>
+                <button id="stAfter" aria-pressed="false">After you merge</button>
+              </div>
+            </div>
+            <div id="cal" class="cal"></div>
+            <div id="agenda" class="agenda bd"></div>
+            <div id="undated" class="undated" hidden></div>
+            <div class="legend">
+              <span><i style="border-style:dashed;border-color:var(--muted)"></i>Waiting for approval</span>
+              <span><i style="background:var(--flag-soft);border-color:var(--flag)"></i>Scheduled</span>
+              <span><i style="background:var(--warn-soft);border-color:var(--warn);border-style:dashed"></i>Needs your answer</span>
+              <span><span class="net off" style="--c:#999">XX</span>Blocked network</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card detail" id="detail"></div>
+
+      <div class="cols3" style="margin-top:18px">
+        <div class="card pr" style="grid-column:1/-1">
+          <div class="hd"><h3 id="prTitle">Pull request</h3><span class="state" id="prState">Open</span></div>
+          <div class="bd md" id="pr"></div>
+          <div class="merge" id="mergeBar"><button class="btn primary" id="mergeBtn">Merge pull request</button><span class="muted" style="font-size:14px">Merging is the approval. In the demo, Upload-Post is pretend: nothing is posted.</span></div>
+          <div class="done" id="doneBox" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules" style="padding-top:20px">
+    <div class="wrap">
+      <div class="kicker">The rules it checks</div>
+      <h2>Every network, its own rules</h2>
+      <p class="muted" style="max-width:66ch">From each network's help pages and Upload-Post's API docs, checked November 2026. They live in <code>rules/networks.json</code>, so when a network changes a limit you edit one line. <b>Blocked</b> stops a post; <b>warning</b> lets it through and tells you.</p>
+      <div class="card rules" style="margin-top:16px"><table class="rt" id="rulesTable"></table></div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <div class="wrap">
+      <div class="kicker">Run it yourself</div>
+      <h2>Which setup is right for you?</h2>
+      <table class="compare">
+        <thead><tr><th></th><th>GitHub repository (recommended)</th><th>Your computer</th></tr></thead>
+        <tbody>
+          <tr><td><b>You write the plan</b></td><td>Edit <code>plan.md</code> on github.com, from any device</td><td>In a text editor</td></tr>
+          <tr><td><b>You approve</b></td><td>Merge a pull request, edit drafts right there</td><td>Edit files in <code>drafts/</code>, then run <code>npm run schedule</code></td></tr>
+          <tr><td><b>It runs</b></td><td>GitHub Actions, on every plan change and every merge</td><td>When you run it</td></tr>
+          <tr><td><b>History</b></td><td>Every draft, edit and approval is in Git</td><td>Only if you use Git</td></tr>
+          <tr><td><b>Cost</b></td><td>GitHub Actions free + Claude + Upload-Post</td><td>Claude + Upload-Post</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">Rule of thumb: if anyone else approves posts (a client, a manager), use GitHub. The pull request is the approval trail.</p>
+      <div class="cols3" style="margin-top:18px">
+        <div class="card opt" style="padding:18px">
+          <h3>Option A: GitHub <span class="pill flag">recommended</span></h3>
+          <ol>
+            <li>Click <b>Use this template</b> and make a <b>private</b> copy. Your plans and unreleased media stay private.</li>
+            <li>Connect your accounts in <a href="https://upload-post.com">Upload-Post</a> under one profile.</li>
+            <li>Add secrets <code>ANTHROPIC_API_KEY</code> and <code>UPLOADPOST_API_KEY</code>, variables <code>UPLOADPOST_PROFILE</code> and <code>SIGNALPOST_ENABLED=true</code>.</li>
+            <li>Allow Actions to create pull requests (Settings → Actions → General).</li>
+            <li>Fill in <code>brand.md</code>, add media, write <code>plan.md</code>. A pull request appears a minute later.</li>
+          </ol>
+        </div>
+        <div class="card opt" style="padding:18px">
+          <h3>Option B: your computer</h3>
+          <ol>
+            <li>Install <a href="https://nodejs.org">Node.js 20+</a>. There's nothing else to install.</li>
+            <li>Copy <code>.env.example</code> to <code>.env</code> and add your keys.</li>
+            <li>Write <code>plan.md</code>, then run the steps:</li>
+          </ol>
+          <pre class="code">npm run draft      # Claude writes drafts/
+npm run check      # after you edit them
+npm run schedule   # sends approved posts to Upload-Post</pre>
+        </div>
+        <div class="card opt" style="padding:18px">
+          <h3>Try it with no accounts</h3>
+          <p class="muted" style="margin:8px 0 0">Runs both demo campaigns through the real code with example Claude output and a pretend Upload-Post.</p>
+          <pre class="code">git clone https://github.com/amachadod/signalpost
+cd signalpost
+npm run demo
+npm test           # 18 tests</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="safeguards" style="padding-top:20px">
+    <div class="wrap">
+      <div class="kicker">Design decisions</div>
+      <h2>Built so nothing goes out by surprise</h2>
+      <div class="safe" style="margin-top:18px">
+        <div class="card"><h3>Your merge is the only "go"</h3><p>Drafting never schedules. Only a merge to main (or your own edit on main) does, and every post gets a fixed time: Signalpost never posts "now" and never uses a queue.</p></div>
+        <div class="card"><h3>Pasted text is never an instruction</h3><p>Lines starting with <code>&gt;</code> are notes from others. No post can come from them, and text that tries to instruct the AI is flagged. The demo's publisher email asks to post a giveaway link everywhere; it's ignored and shown to you.</p></div>
+        <div class="card"><h3>Only your links</h3><p>A link that isn't listed in <code>brand.md</code> blocks the post, so a bad link can't slip into a caption. Links are also taken out of X posts, because Upload-Post strips them there.</p></div>
+        <div class="card"><h3>Every post quotes your plan</h3><p>Each post must quote the line of your plan it came from, word for word, or it's dropped. Media must exist, networks must be yours, and the time must be real and in the future.</p></div>
+        <div class="card"><h3>Guesses are questions</h3><p>When Claude had to pick a day or time ("this weekend"), the draft is marked <b>needs your answer</b> and isn't scheduled until you say so. <code>REVIEW_MODE</code> does that for every post.</p></div>
+        <div class="card"><h3>Edit, delete, cancel</h3><p>Edit a draft and only that post is rescheduled. Delete it and the scheduled job is cancelled. Each request has an idempotency key, so a retry can never post twice.</p></div>
+        <div class="card"><h3>Limits before they bite</h3><p>Daily caps per network, the free plan's 10 uploads a month and its missing TikTok are checked before anything is sent, so you see the problem in the pull request instead of a failed post.</p></div>
+        <div class="card"><h3>Quiet logs</h3><p>Run logs show counts only, never what your posts say, because logs of public repositories are visible to anyone. <code>DRY_RUN</code> does everything but call Upload-Post.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div><b style="color:var(--ink)">Signalpost</b> by Alberto Machado Domínguez · <a href="https://github.com/amachadod/signalpost">Code on GitHub</a> · MIT license</div>
+      <div>Also: <a href="https://amachadod.github.io/minuta/">Minuta</a> · <a href="https://amachadod.github.io/posta/">Posta</a> · <a href="https://amachadod.github.io/threadline/">Threadline</a> · <a href="https://amachadod.github.io/plano/">Plano</a></div>
+    </div>
+    <p style="margin:14px 0 0;font-size:13px">Claude, Upload-Post, Instagram, TikTok, YouTube, Facebook, LinkedIn, X, Threads, Pinterest and GitHub are trademarks of their owners. Signalpost is an independent project, not affiliated with any of them. The brands in the demo are fictional.</p>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const D = window.SIGNALPOST;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const COLORS = { instagram: "#d6249f", tiktok: "#25c3d0", youtube: "#ff0000", facebook: "#1877f2", linkedin: "#0a66c2", x: "#71767b", threads: "#8a8a8a", pinterest: "#e60023" };
+  const SHORT = { instagram: "IG", tiktok: "TT", youtube: "YT", facebook: "FB", linkedin: "LI", x: "X", threads: "TH", pinterest: "PIN" };
+  const NAME = (n) => D.rules.networks[n].name;
+  const EX = { brightline: { title: "Brightline Studio", sub: "Indie game launch · English" }, casaverde: { title: "Casa Verde Hotels", sub: "Hotel opening · Spanish" } };
+  const STATUS = { waiting: "Waiting for approval", scheduled: "Scheduled", "needs-answer": "Needs your answer", blocked: "Blocked", skipped: "Not scheduled", past: "Time passed", ready: "Ready" };
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  let ex = "brightline", stage = "before", sel = null, selNet = null;
+
+  // Theme
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("sp-theme"); if (t) root.dataset.theme = t; } catch {}
+  $("#theme").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("sp-theme", root.dataset.theme); } catch {}
+  };
+
+  // Tiny Markdown for the pull request text.
+  const inline = (s) => esc(s)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/~~([^~]+)~~/g, "<s>$1</s>")
+    .replace(/(^|[\s(])_([^_]+)_(?=[\s.,)]|$)/g, "$1<i>$2</i>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, h) => `<a href="#" data-file="${h}">${t}</a>`);
+  function md(text) {
+    const lines = text.split("\n"), out = [];
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (/^## /.test(l)) out.push(`<h2>${inline(l.slice(3))}</h2>`);
+      else if (/^### /.test(l)) out.push(`<h3>${inline(l.slice(4))}</h3>`);
+      else if (/^\|/.test(l)) {
+        const rows = [];
+        while (i < lines.length && /^\|/.test(lines[i])) rows.push(lines[i++]);
+        i--;
+        const cells = (r) => r.replace(/^\||\|$/g, "").split(" | ").map((c) => c.trim());
+        out.push(`<table><thead><tr>${cells(rows[0]).map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${rows.slice(2).map((r) => `<tr>${cells(r).map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
+      } else if (/^- /.test(l)) {
+        const items = [];
+        while (i < lines.length && /^- /.test(lines[i])) items.push(lines[i++].slice(2));
+        i--;
+        out.push(`<ul>${items.map((x) => `<li>${inline(x)}</li>`).join("")}</ul>`);
+      } else if (l.trim()) out.push(`<p>${inline(l)}</p>`);
+    }
+    return out.join("");
+  }
+
+  const E = () => D.examples[ex];
+  const rows = () => (stage === "before" ? E().before : E().after);
+  const postByRef = (ref) => E().posts.find((p) => p.ref === ref);
+  const level = (issues) => (issues.some((i) => i.level === "block") ? "block" : issues.length ? "warn" : "ok");
+  const pretty = (date, time) => { if (!date) return "No date yet"; const d = new Date(`${date}T12:00:00Z`); return `${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getUTCDay()]} ${d.getUTCDate()} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]}${time ? ` ${time}` : ""}`; };
+
+  function tabs() {
+    $("#exTabs").innerHTML = Object.keys(D.examples).map((k) => `<button class="tab" role="tab" aria-selected="${k === ex}" data-ex="${k}">${EX[k].title}<small>${EX[k].sub}</small></button>`).join("");
+    document.querySelectorAll("#exTabs .tab").forEach((b) => (b.onclick = () => { ex = b.dataset.ex; stage = "before"; sel = null; render(); }));
+  }
+
+  function renderPlan() {
+    const e = E();
+    const norm = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
+    const sus = e.suspicious.map((s) => norm(s.quote));
+    $("#plan").innerHTML = e.plan.trimEnd().split("\n").map((l) => {
+      if (!l.trim()) return "";
+      const bare = l.replace(/^\s*-\s*/, "");
+      const post = e.posts.find((p) => norm(p.source) === norm(bare));
+      const isQ = /^\s*>/.test(l);
+      const isSus = isQ && sus.some((s) => norm(l.replace(/^\s*>\s?/, "")).includes(s.slice(0, 40)));
+      const cls = ["ln", /^#/.test(l) ? "h" : "", isQ ? "q" : "", post ? "used" : "", post && sel === post.ref ? "on" : "", isSus ? "sus" : ""].join(" ");
+      const text = /^#/.test(l) ? l.replace(/^#+\s*/, "") : l;
+      return `<div class="${cls}" ${post ? `data-ref="${post.ref}" role="button" tabindex="0"` : ""}>${esc(text)}${isSus ? '<span class="tag ig">Ignored</span>' : ""}</div>`;
+    }).join("");
+    document.querySelectorAll("#plan .used").forEach((el) => { el.onclick = () => select(el.dataset.ref); el.onkeydown = (ev) => { if (ev.key === "Enter") select(el.dataset.ref); }; });
+  }
+
+  function renderMedia() {
+    $("#media").innerHTML = E().media.map((m) => {
+      const r = m.width && m.height ? m.width / m.height : 1;
+      const h = 56, w = Math.min(64, Math.round(h * r));
+      const hh = Math.round(w / r);
+      return `<div class="tile" title="${esc(m.name)}"><div class="thumb" style="width:${w}px;height:${hh}px">${m.kind === "video" ? "▶" : ""}</div><span class="nm">${esc(m.name.replace("media/", ""))}</span>${esc(m.ratio)}${m.duration ? ` · ${m.duration < 60 ? `${m.duration}s` : `${Math.floor(m.duration / 60)}:${String(Math.round(m.duration % 60)).padStart(2, "0")}`}` : ""}</div>`;
+    }).join("");
+  }
+
+  function groups() {
+    const map = new Map();
+    for (const r of rows()) {
+      if (!map.has(r.ref)) map.set(r.ref, { ref: r.ref, label: r.label, date: r.date, time: r.time, format: r.format, nets: [] });
+      map.get(r.ref).nets.push(r);
+    }
+    for (const g of map.values()) {
+      const s = g.nets.map((n) => n.status);
+      g.status = s.includes("needs-answer") ? "needs-answer" : s.includes("scheduled") ? "scheduled" : s.includes("waiting") ? "waiting" : "blocked";
+    }
+    return [...map.values()];
+  }
+
+  const chip = (g) => `<button class="chip st-${g.status}" data-ref="${g.ref}" aria-pressed="${sel === g.ref}"><span class="t">${g.time || "--:--"} · ${esc(STATUS[g.status])}</span><span class="l">${esc(g.label)}</span><span class="dots">${g.nets.map((n) => `<span class="net ${["blocked", "skipped"].includes(n.status) ? "off" : n.status === "scheduled" ? "sch" : ""}" style="--c:${COLORS[n.network]}" title="${NAME(n.network)}: ${esc(STATUS[n.status] || n.status)}">${SHORT[n.network]}</span>`).join("")}</span></button>`;
+
+  function renderCalendar() {
+    const gs = groups();
+    const [y, m] = [2026, 11];
+    const first = new Date(Date.UTC(y, m - 1, 1)), days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const lead = (first.getUTCDay() + 6) % 7;
+    const today = "2026-11-09";
+    let html = DAYS.map((d) => `<div class="dow">${d}</div>`).join("");
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push(`<div class="day out"><span class="d">${new Date(Date.UTC(y, m - 1, i - lead + 1)).getUTCDate()}</span></div>`);
+    for (let d = 1; d <= days; d++) {
+      const date = `2026-11-${String(d).padStart(2, "0")}`;
+      const here = gs.filter((g) => g.date === date).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+      cells.push(`<div class="day ${date === today ? "today" : ""}"><span class="d">${d}</span>${here.map(chip).join("")}</div>`);
+    }
+    while (cells.length % 7) cells.push(`<div class="day out"><span class="d">${cells.length - lead - days + 1}</span></div>`);
+    $("#cal").innerHTML = html + cells.join("");
+    const dated = gs.filter((g) => g.date).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    const byDay = [...new Set(dated.map((g) => g.date))];
+    $("#agenda").innerHTML = byDay.map((d) => `<div class="ad"><h4>${pretty(d)}${d === today ? " · today" : ""}</h4>${dated.filter((g) => g.date === d).map(chip).join("")}</div>`).join("");
+    const und = gs.filter((g) => !g.date);
+    $("#undated").hidden = !und.length;
+    $("#undated").innerHTML = `<span class="muted" style="font-size:13px">No date yet:</span>${und.map(chip).join("")}`;
+    $("#calTitle").textContent = `November 2026 · ${E().brand.timezone}`;
+    document.querySelectorAll(".chip").forEach((c) => (c.onclick = () => select(c.dataset.ref)));
+  }
+
+  const richText = (t) => esc(t).replace(/(^|\s)(#[\p{L}\p{N}_]+)/gu, '$1<span class="ht">$2</span>').replace(/(^|\s)(@[\w.]+)/g, '$1<span class="ht">$2</span>').replace(/(https?:\/\/[^\s<]+)/g, '<span class="url">$1</span>');
+
+  function phone(p, n) {
+    const e = E();
+    const media = p.media.map((m) => e.media.find((x) => x.name === m)).filter(Boolean);
+    const first = media[0];
+    const r = first && first.width ? first.width / first.height : null;
+    const brandName = e.brand.name;
+    const initials = brandName.split(" ").map((w) => w[0]).slice(0, 2).join("");
+    const story = p.format === "story";
+    const shot = p.format === "text" ? "" : `<div class="shot" style="aspect-ratio:${r ? `${first.width}/${first.height}` : "1"}">${first ? `${first.kind === "video" ? "▶ " : ""}${esc(first.name.replace("media/", ""))}<br>${first.ratio}${first.duration ? ` · ${first.duration}s` : ""}` : "media"}${media.length > 1 ? `<span class="count">1/${media.length}</span>` : ""}</div>`;
+    const title = n.title ? `<div class="ttl">${esc(n.title)}</div>` : "";
+    const textFirst = ["x", "threads", "linkedin", "facebook"].includes(n.id);
+    const caption = n.caption ? `<div class="txt">${richText(n.caption)}</div>` : "";
+    const hide = story && n.id === "instagram";
+    return `<div class="phone"><div class="bar"><span class="av">${esc(initials)}</span><b>${esc(brandName)}</b><span class="muted" style="margin-left:auto">${NAME(n.id)} · ${esc(p.format)}</span></div>
+      ${textFirst ? caption + shot : (n.id === "youtube" ? shot + title + caption : shot + (n.id === "pinterest" ? title : "") + (hide ? `<div class="txt muted" style="font-size:12.5px">Stories don't show a caption, so this one would be skipped: "${esc(n.caption)}"</div>` : caption))}
+      ${n.link ? `<div class="lnk">↗ ${esc(n.link)}</div>` : ""}
+      ${n.first_comment ? `<div class="cm"><b>First comment:</b> ${esc(n.first_comment)}</div>` : ""}
+      ${n.topic_tag ? `<div class="cm"><b>Topic:</b> ${esc(n.topic_tag)}</div>` : ""}</div>`;
+  }
+
+  function renderDetail() {
+    const e = E();
+    const p = postByRef(sel) || e.posts[0];
+    sel = p.ref;
+    if (!p.networks.find((n) => n.id === selNet)) selNet = p.networks[0].id;
+    const n = p.networks.find((x) => x.id === selNet);
+    const row = rows().find((r) => r.ref === p.ref && r.network === n.id);
+    const st = row ? row.status : "waiting";
+    const fix = p.fixes.find((f) => f.network === n.id);
+    const req = e.requests[`${p.ref}:${n.id}`];
+    const pillCls = st === "scheduled" ? "flag" : st === "needs-answer" ? "warn" : ["blocked", "skipped"].includes(st) ? "block" : "";
+    $("#detail").innerHTML = `<div class="bd">
+      <div class="dhead"><div><div class="kicker" style="margin-bottom:6px">${pretty(p.date, p.time)} · ${esc(p.timezone)}</div><h3>${esc(p.label)} <span class="muted" style="font:400 15px var(--body)">· ${esc(p.format)} · ${p.media.length ? `${p.media.length} file${p.media.length > 1 ? "s" : ""}` : "text only"}</span></h3></div>
+      <span class="pill">${esc(p.file)}</span></div>
+      <p class="muted" style="margin:10px 0 0;font-size:14px">From your plan: "${esc(p.source)}"</p>
+      ${p.question && !(stage === "after" && st === "scheduled") ? `<p class="question"><b>Question for you:</b> ${esc(p.question)} Not scheduled until you answer.</p>` : ""}
+      <div class="nets" role="tablist">${p.networks.map((x) => { const r = rows().find((y) => y.ref === p.ref && y.network === x.id); const lv = level(x.issues); return `<button role="tab" aria-selected="${x.id === n.id}" data-net="${x.id}" style="--c:${COLORS[x.id]}"><span class="dot"></span>${NAME(x.id)}<span class="s ${lv}">${lv === "block" ? "blocked" : lv === "warn" ? "warning" : "ok"}</span>${r && r.status === "scheduled" ? '<span class="s" style="background:var(--flag-soft);color:var(--flag-ink)">scheduled</span>' : ""}</button>`; }).join("")}</div>
+      <div class="pview">
+        <div>${phone(p, n)}</div>
+        <div class="side">
+          <h4>Checks · ${esc(n.stats)}</h4>
+          <ul class="checks">${n.issues.length ? n.issues.map((i) => `<li><span class="m s ${i.level}">${i.level === "block" ? "blocked" : "warning"}</span><span>${esc(i.msg)}</span></li>`).join("") : `<li><span class="m s ok">ok</span><span>Passes every ${NAME(n.id)} rule Signalpost checks.</span></li>`}</ul>
+          ${fix ? `<div class="fix"><b>Fixed on the second try.</b> The first draft broke a rule: ${esc(fix.was.join(" "))} Signalpost sent Claude the exact problem, and the rewrite passes.</div>` : ""}
+          <dl class="kv"><dt>Status</dt><dd><span class="pill ${pillCls}">${esc(STATUS[st] || st)}</span></dd>${row && row.jobId ? `<dt>Upload-Post job</dt><dd class="mono">${esc(row.jobId)} (pretend)</dd>` : ""}${n.alt_text ? `<dt>Alt text</dt><dd>${esc(n.alt_text)}</dd>` : ""}<dt>Media</dt><dd class="mono">${p.media.map(esc).join("<br>") || "none"}</dd></dl>
+          ${req && stage === "after" ? `<details class="raw" open><summary>What Signalpost sent to Upload-Post</summary><table class="req"><tr><td>POST</td><td>https://api.upload-post.com${esc(req.endpoint)}</td></tr><tr><td>Idempotency-Key</td><td>${esc(req.idempotencyKey)}</td></tr>${req.fields.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v.length > 160 ? `${v.slice(0, 160)}…` : v)}</td></tr>`).join("")}${req.files.map((f) => `<tr><td>file</td><td>${esc(f)}</td></tr>`).join("")}</table></details>` : ""}
+          <details class="raw"><summary>The draft file you edit in the pull request</summary><pre>${esc(p.markdown)}</pre></details>
+        </div>
+      </div></div>`;
+    document.querySelectorAll("#detail .nets button").forEach((b) => (b.onclick = () => { selNet = b.dataset.net; renderDetail(); }));
+  }
+
+  function renderPR() {
+    const e = E();
+    $("#prTitle").textContent = `Signalpost: posts ready for your approval`;
+    $("#pr").innerHTML = md(e.summary);
+    document.querySelectorAll("#pr a[data-file]").forEach((a) => (a.onclick = (ev) => { ev.preventDefault(); const p = e.posts.find((x) => x.file === a.dataset.file); if (p) { select(p.ref); $("#detail").scrollIntoView({ behavior: "smooth", block: "start" }); } }));
+    const merged = stage === "after";
+    $("#prState").textContent = merged ? "Merged" : "Open";
+    $("#prState").className = `state ${merged ? "merged" : ""}`;
+    $("#mergeBar").hidden = merged;
+    $("#doneBox").hidden = !merged;
+    if (merged) {
+      const r = e.report;
+      $("#doneBox").innerHTML = `<b>Merged.</b> Signalpost scheduled ${r.scheduled.length} network posts with Upload-Post, wrote <code>scheduled.json</code>, and updated <code>CALENDAR.md</code> and <code>calendar.ics</code>.${e.brand.plan === "free" ? ` Free plan: ${r.monthly["2026-11"] || 0} of 10 uploads used in November.` : ""}<ul>${r.skipped.map((s) => `<li>Not scheduled: <b>${esc(s.label)}</b>${s.network ? ` on ${NAME(s.network)}` : ""}. ${esc(s.reason)}</li>`).join("")}</ul>
+        <details class="raw"><summary>CALENDAR.md</summary><pre>${esc(e.calendarMd)}</pre></details>
+        <details class="raw"><summary>calendar.ics (import into Google Calendar, Outlook or Apple Calendar)</summary><pre>${esc(e.ics)}</pre></details>`;
+    }
+  }
+
+  function renderRules() {
+    const R = D.rules.networks;
+    const lim = (n) => [n.caption ? `${n.caption.max.toLocaleString("en-US")} characters${n.caption.overflow ? " (longer becomes a thread)" : ""}` : "", n.title ? `title ${n.title.max}${n.title.required ? ", required" : ""}` : "", n.photoTitle ? `photo title ${n.photoTitle.max}` : ""].filter(Boolean).join("<br>");
+    const media = (n) => [n.carousel ? `carousel ${n.carousel.min}–${n.carousel.max}${n.carousel.videos ? " (photos and videos)" : " (photos)"}` : "", n.video?.maxSeconds ? `video up to ${n.video.maxSeconds >= 120 ? `${n.video.maxSeconds / 60} min` : `${n.video.maxSeconds}s`}` : "", n.shorts ? "Shorts up to 3 min, vertical" : "", n.reelAspect ? "reels vertical 9:16" : ""].filter(Boolean).join("<br>");
+    const other = (n) => [n.hashtags ? (n.hashtags.max ? `up to ${n.hashtags.max} hashtags` : "no hashtags, one topic tag") : "", n.links === "stripped" ? "links removed by Upload-Post" : n.links === "not-clickable" ? "links not clickable" : "", n.needs ? `needs ${n.needs}` : "", n.paidPlanOnly ? "not on Upload-Post's free plan" : "", n.noAngleBrackets ? "no &lt; or &gt;" : ""].filter(Boolean).join("<br>");
+    $("#rulesTable").innerHTML = `<thead><tr><th>Network</th><th>Takes</th><th>Text</th><th>Media</th><th>Also checked</th><th>Per day</th></tr></thead><tbody>${Object.entries(R).map(([id, n]) => `<tr><td class="n"><span class="net" style="--c:${COLORS[id]}">${SHORT[id]}</span> ${esc(n.name)}</td><td>${n.formats.join(", ")}</td><td>${lim(n)}</td><td>${media(n)}</td><td>${other(n)}</td><td class="mono">${n.dailyCap}</td></tr>`).join("")}</tbody>`;
+  }
+
+  function select(ref) { sel = ref; const p = postByRef(ref); if (p && !p.networks.find((n) => n.id === selNet)) selNet = p.networks[0].id; renderPlan(); renderCalendar(); renderDetail(); }
+
+  function setStage(s) {
+    stage = s;
+    $("#stBefore").setAttribute("aria-pressed", s === "before");
+    $("#stAfter").setAttribute("aria-pressed", s === "after");
+    renderCalendar(); renderDetail(); renderPR();
+  }
+  $("#stBefore").onclick = () => setStage("before");
+  $("#stAfter").onclick = () => setStage("after");
+  $("#mergeBtn").onclick = () => { setStage("after"); document.querySelectorAll(".chip.st-scheduled").forEach((c) => c.classList.add("pop")); $("#cal").scrollIntoView({ behavior: "smooth", block: "center" }); };
+
+  function render() { tabs(); renderPlan(); renderMedia(); setStage(stage); }
+  renderRules();
+  render();
+})();
+</script>
+</body>
+</html>
