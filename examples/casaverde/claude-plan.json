@@ -1,0 +1,34 @@
+{
+  "_note": "Example output written for this fictional plan, in the shape Claude returns. Not a live AI response.",
+  "items": [
+    {
+      "source_quote": "Reel de la terraza al atardecer (media/rooftop-sunset.mp4): Instagram, TikTok y Facebook, el viernes 20 a las 18:30.",
+      "label": "Reel de la terraza", "media": ["media/rooftop-sunset.mp4"], "format": "reel", "networks": ["instagram", "tiktok", "facebook"],
+      "date": "2026-11-20", "time": "18:30", "timezone": null,
+      "about": "El atardecer desde la terraza el día de la apertura.", "instructions": "",
+      "confidence": 0.95, "question": null
+    },
+    {
+      "source_quote": "Carrusel de habitaciones (media/room-1.jpg a media/room-4.jpg): Instagram y Pinterest, el miércoles 18 a las 12:00. En Pinterest, que enlace a la página de reservas.",
+      "label": "Carrusel de habitaciones", "media": ["media/room-1.jpg", "media/room-2.jpg", "media/room-3.jpg", "media/room-4.jpg"], "format": "carousel", "networks": ["instagram", "pinterest"],
+      "date": "2026-11-18", "time": "12:00", "timezone": null,
+      "about": "Las habitaciones del hotel, dos días antes de abrir.", "instructions": "En Pinterest, enlazar a https://casaverde.example/valle",
+      "confidence": 0.93, "question": null
+    },
+    {
+      "source_quote": "Foto del lobby (media/lobby.jpg): LinkedIn y Facebook, la mañana del día de apertura. En LinkedIn, dar las gracias a las 40 personas de Valle de Bravo que lo construyeron y que ahora trabajan aquí.",
+      "label": "Foto del lobby", "media": ["media/lobby.jpg"], "format": "photo", "networks": ["linkedin", "facebook"],
+      "date": "2026-11-20", "time": "09:00", "timezone": null,
+      "about": "El día de la apertura, desde el lobby.", "instructions": "En LinkedIn, dar las gracias a las 40 personas de Valle de Bravo que lo construyeron y que ahora trabajan aquí.",
+      "confidence": 0.8, "question": null
+    },
+    {
+      "source_quote": "Video del lago con dron (media/lake-drone.mp4): YouTube Shorts y reel de Instagram, la próxima semana.",
+      "label": "Video del lago", "media": ["media/lake-drone.mp4"], "format": "reel", "networks": ["youtube", "instagram"],
+      "date": null, "time": null, "timezone": null,
+      "about": "El lago de Valle de Bravo visto desde un dron.", "instructions": "",
+      "confidence": 0.6, "question": "¿Qué día y a qué hora de la próxima semana? El plan no lo dice, así que no elegí ninguno."
+    }
+  ],
+  "suspicious": []
+}

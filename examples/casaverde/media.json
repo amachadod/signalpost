@@ -1,0 +1,9 @@
+{
+  "media/rooftop-sunset.mp4": { "kind": "video", "width": 1080, "height": 1920, "duration": 22, "bytes": 31800000 },
+  "media/room-1.jpg": { "kind": "image", "width": 1080, "height": 1350, "bytes": 980000 },
+  "media/room-2.jpg": { "kind": "image", "width": 1080, "height": 1350, "bytes": 1040000 },
+  "media/room-3.jpg": { "kind": "image", "width": 1080, "height": 1350, "bytes": 1010000 },
+  "media/room-4.jpg": { "kind": "image", "width": 1080, "height": 1350, "bytes": 960000 },
+  "media/lobby.jpg": { "kind": "image", "width": 1800, "height": 1200, "bytes": 1650000 },
+  "media/lake-drone.mp4": { "kind": "video", "width": 3840, "height": 2160, "duration": 48, "bytes": 189000000 }
+}

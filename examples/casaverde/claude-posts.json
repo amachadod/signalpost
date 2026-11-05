@@ -1,0 +1,32 @@
+{
+  "_note": "Example output written for this fictional plan, in the shape Claude returns. 'repair' is Claude's second try after Signalpost listed the rules the first draft broke. Not a live AI response.",
+  "Reel de la terraza": {
+    "posts": [
+      { "network": "instagram", "caption": "El atardecer desde la terraza, el día que abrimos.\n\nCasa Verde Valle de Bravo ya está abierto. Ven a verlo con tus propios ojos.\n\nReservas en el link de la bio.\n\n#ValledeBravo #CasaVerde #hotelboutique #escapadas" },
+      { "network": "tiktok", "caption": "Así se ve el atardecer desde nuestra terraza en Valle de Bravo 🌅 Abrimos hoy. #ValledeBravo #hotel #escapadas" },
+      { "network": "facebook", "caption": "Hoy abrimos Casa Verde Valle de Bravo. Y así se ve el atardecer desde la terraza.\n\nReserva tu estancia: https://casaverde.example/valle" }
+    ]
+  },
+  "Carrusel de habitaciones": {
+    "posts": [
+      { "network": "instagram", "caption": "Cuatro habitaciones, cuatro maneras de despertar en Valle de Bravo.\n\nAbrimos el viernes 20 de noviembre. Reservas en el link de la bio.\n\n#ValledeBravo #CasaVerde #hotelboutique", "alt_text": "Cuatro habitaciones de Casa Verde Valle de Bravo." },
+      { "network": "pinterest", "title": "Habitaciones de hotel boutique en Valle de Bravo, México: ideas para tu próxima escapada de fin de semana", "caption": "Casa Verde Valle de Bravo abre el 20 de noviembre: un hotel pequeño, con habitaciones pensadas para descansar. Guarda este pin para tu próxima escapada.", "link": "https://casaverde.example/valle", "alt_text": "Habitación de Casa Verde Valle de Bravo." }
+    ],
+    "repair": [
+      { "network": "instagram", "caption": "Cuatro habitaciones, cuatro maneras de despertar en Valle de Bravo.\n\nAbrimos el viernes 20 de noviembre. Reservas en el link de la bio.\n\n#ValledeBravo #CasaVerde #hotelboutique", "alt_text": "Cuatro habitaciones de Casa Verde Valle de Bravo." },
+      { "network": "pinterest", "title": "Hotel boutique en Valle de Bravo: habitaciones para una escapada de fin de semana", "caption": "Casa Verde Valle de Bravo abre el 20 de noviembre: un hotel pequeño, con habitaciones pensadas para descansar. Guarda este pin para tu próxima escapada.", "link": "https://casaverde.example/valle", "alt_text": "Habitación de Casa Verde Valle de Bravo." }
+    ]
+  },
+  "Foto del lobby": {
+    "posts": [
+      { "network": "linkedin", "caption": "Hoy abre Casa Verde Valle de Bravo, y no lo hicimos solos.\n\nGracias a las 40 personas de Valle de Bravo que lo construyeron y que desde hoy trabajan aquí. Este hotel es suyo tanto como nuestro.\n\n#hospitalidad #ValledeBravo #turismo", "alt_text": "El lobby de Casa Verde Valle de Bravo el día de la apertura." },
+      { "network": "facebook", "caption": "Buenos días desde el lobby. Hoy abrimos Casa Verde Valle de Bravo.\n\nGracias a todos los que lo hicieron posible. Te esperamos: https://casaverde.example/valle", "alt_text": "El lobby de Casa Verde Valle de Bravo el día de la apertura." }
+    ]
+  },
+  "Video del lago": {
+    "posts": [
+      { "network": "youtube", "title": "Valle de Bravo desde el aire | Casa Verde", "caption": "El lago de Valle de Bravo visto desde arriba.\n\nCasa Verde Valle de Bravo ya está abierto: https://casaverde.example/valle" },
+      { "network": "instagram", "caption": "Valle de Bravo desde el aire.\n\nReservas en el link de la bio.\n\n#ValledeBravo #CasaVerde" }
+    ]
+  }
+}
