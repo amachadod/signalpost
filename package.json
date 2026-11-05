@@ -1,0 +1,29 @@
+{
+  "name": "signalpost",
+  "version": "1.0.0",
+  "description": "Signalpost: tell Claude what goes where and when. It writes every post for each network, checks it against that network's rules, and schedules it through Upload-Post only after you approve.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Alberto Machado Domínguez",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "draft": "node scripts/draft.js",
+    "check": "node scripts/check.js",
+    "schedule": "node scripts/schedule.js",
+    "sync": "node scripts/schedule.js --sync",
+    "calendar": "node scripts/calendar.js",
+    "demo": "node scripts/demo.js",
+    "build:demo": "node scripts/build-demo.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "social-media",
+    "content-calendar",
+    "scheduling",
+    "claude",
+    "upload-post",
+    "github-actions"
+  ]
+}
