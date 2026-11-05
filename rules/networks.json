@@ -1,0 +1,118 @@
+{
+  "checked": "2026-11",
+  "about": "Limits Signalpost checks before anything is scheduled. They come from each network's help pages and Upload-Post's API docs, checked November 2026. Networks change their rules: edit this file when they do. 'block' stops a post from being scheduled. 'warn' lets it through but tells you in the pull request.",
+  "formats": {
+    "reel": "One vertical video (Instagram Reel, TikTok video, YouTube Short, Facebook Reel)",
+    "video": "One video of any shape (a YouTube video, a LinkedIn or X video)",
+    "carousel": "Two or more photos posted together",
+    "photo": "One photo",
+    "story": "One photo or video that disappears after 24 hours",
+    "text": "Words only, no media"
+  },
+  "networks": {
+    "instagram": {
+      "name": "Instagram",
+      "formats": ["reel", "carousel", "photo", "story"],
+      "caption": { "max": 2200 },
+      "hashtags": { "max": 5 },
+      "carousel": { "min": 2, "max": 10, "videos": true },
+      "video": { "minSeconds": 3, "maxSeconds": 900 },
+      "reelAspect": "vertical",
+      "storyCaption": false,
+      "links": "not-clickable",
+      "firstComment": true,
+      "dailyCap": 50,
+      "tips": "Hook in the first line, because only about 125 characters show before 'more'. Up to 5 hashtags. Links aren't clickable in captions."
+    },
+    "tiktok": {
+      "name": "TikTok",
+      "formats": ["reel", "carousel", "photo"],
+      "caption": { "max": 2200 },
+      "photoTitle": { "max": 90 },
+      "photoDescription": { "max": 4000 },
+      "carousel": { "min": 1, "max": 35, "videos": false },
+      "video": { "minSeconds": 3, "maxSeconds": 600 },
+      "reelAspect": "vertical",
+      "links": "not-clickable",
+      "firstComment": true,
+      "dailyCap": 15,
+      "paidPlanOnly": true,
+      "tips": "Short and spoken. Say what happens in the video, a question or a hook, then 3 to 5 hashtags. Photo posts need a title of 90 characters or fewer."
+    },
+    "youtube": {
+      "name": "YouTube",
+      "formats": ["reel", "video"],
+      "title": { "max": 100, "required": true },
+      "caption": { "max": 5000 },
+      "noAngleBrackets": true,
+      "shorts": { "maxSeconds": 180 },
+      "reelAspect": "vertical",
+      "links": "ok",
+      "firstComment": true,
+      "dailyCap": 30,
+      "tips": "A clear, searchable title of 100 characters or fewer (60 shows best). The description says what the video covers, with links. Shorts are vertical and 3 minutes or shorter. No < or > anywhere."
+    },
+    "facebook": {
+      "name": "Facebook",
+      "formats": ["reel", "video", "carousel", "photo", "story", "text"],
+      "caption": { "max": 63206, "soft": 500 },
+      "carousel": { "min": 2, "max": 10, "videos": false },
+      "needs": "facebook_page_id",
+      "links": "ok",
+      "firstComment": true,
+      "dailyCap": 25,
+      "tips": "Conversational, a few lines. Links work. Hashtags matter little; use one or two at most."
+    },
+    "linkedin": {
+      "name": "LinkedIn",
+      "formats": ["video", "reel", "carousel", "photo", "text"],
+      "caption": { "max": 3000 },
+      "carousel": { "min": 2, "max": 20, "videos": false },
+      "video": { "minSeconds": 3, "maxSeconds": 900 },
+      "links": "ok",
+      "firstComment": true,
+      "dailyCap": 150,
+      "tips": "Professional and specific: the people, the work, the lesson. First two lines carry the post (about 210 characters show before 'see more'). Up to 3 hashtags at the end."
+    },
+    "x": {
+      "name": "X",
+      "formats": ["video", "reel", "photo", "carousel", "text"],
+      "caption": { "max": 280, "overflow": "thread" },
+      "carousel": { "min": 2, "max": 4, "videos": false },
+      "video": { "maxSeconds": 140 },
+      "links": "stripped",
+      "firstComment": true,
+      "dailyCap": 10,
+      "tips": "280 characters. Upload-Post removes links from X posts, so don't put any in. One or two hashtags at most."
+    },
+    "threads": {
+      "name": "Threads",
+      "formats": ["video", "reel", "photo", "carousel", "text"],
+      "caption": { "max": 500, "overflow": "thread" },
+      "carousel": { "min": 2, "max": 20, "videos": true },
+      "video": { "maxSeconds": 300 },
+      "hashtags": { "max": 0, "why": "Threads uses one topic tag instead of hashtags." },
+      "topicTag": { "max": 50 },
+      "links": "ok",
+      "firstComment": true,
+      "dailyCap": 50,
+      "tips": "Conversational, 500 characters. No hashtags: set one topic tag instead. Links work."
+    },
+    "pinterest": {
+      "name": "Pinterest",
+      "formats": ["photo", "carousel", "video", "reel"],
+      "title": { "max": 100 },
+      "caption": { "max": 500 },
+      "carousel": { "min": 2, "max": 5, "videos": false },
+      "needs": "pinterest_board_id",
+      "links": "ok",
+      "linkField": true,
+      "dailyCap": 20,
+      "tips": "Pinterest is a search engine: a title with the words people search for (100 characters or fewer), a useful description (500 or fewer) and a destination link."
+    }
+  },
+  "uploadPost": {
+    "freePlan": { "uploadsPerMonth": 10, "noTiktok": true },
+    "maxDaysAhead": 365
+  }
+}
