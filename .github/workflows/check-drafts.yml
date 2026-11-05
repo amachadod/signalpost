@@ -1,0 +1,22 @@
+# Re-checks the drafts every time you edit them in a pull request, so you see a broken rule before you merge.
+# It needs no keys and never schedules anything.
+name: Check drafts
+
+on:
+  pull_request:
+    paths: ["drafts/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: ${{ vars.SIGNALPOST_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check every draft against the network rules
+        run: npm run check

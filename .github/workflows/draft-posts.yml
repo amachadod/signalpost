@@ -1,0 +1,50 @@
+# Reads plan.md when you change it, has Claude write the posts, and opens a pull request for you to approve.
+# Nothing is scheduled here. Merging the pull request is the approval.
+name: Draft posts
+
+on:
+  push:
+    branches: [main]
+    paths: ["plan.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: signalpost
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    if: ${{ vars.SIGNALPOST_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Write drafts
+        run: npm run draft
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+          REVIEW_MODE: ${{ vars.REVIEW_MODE }}
+          DRY_RUN: ${{ vars.DRY_RUN }}
+      - name: Open a pull request with the drafts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain drafts CALENDAR.md calendar.ics)" ]; then
+            echo "No new drafts."
+            exit 0
+          fi
+          branch="signalpost/drafts-${{ github.run_number }}"
+          git config user.name "signalpost[bot]"
+          git config user.email "signalpost@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add drafts CALENDAR.md calendar.ics
+          git commit -m "Signalpost: new drafts for approval"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "Signalpost: posts ready for your approval" --body-file .signalpost-summary.md

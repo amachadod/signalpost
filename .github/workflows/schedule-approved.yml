@@ -1,0 +1,52 @@
+# Runs when approved drafts land on main (you merged the pull request, or edited a draft on main).
+# Schedules them through Upload-Post, cancels deleted ones, and updates the calendar.
+# Once a day it also asks Upload-Post what has gone out.
+name: Schedule approved posts
+
+on:
+  push:
+    branches: [main]
+    paths: ["drafts/**"]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signalpost
+  cancel-in-progress: false
+
+jobs:
+  schedule:
+    if: ${{ vars.SIGNALPOST_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Schedule approved drafts
+        if: ${{ github.event_name != 'schedule' }}
+        run: npm run schedule
+        env:
+          UPLOADPOST_API_KEY: ${{ secrets.UPLOADPOST_API_KEY }}
+          UPLOADPOST_PROFILE: ${{ vars.UPLOADPOST_PROFILE }}
+          DRY_RUN: ${{ vars.DRY_RUN }}
+      - name: Check what has gone out
+        if: ${{ github.event_name == 'schedule' }}
+        run: npm run sync
+        env:
+          UPLOADPOST_API_KEY: ${{ secrets.UPLOADPOST_API_KEY }}
+          UPLOADPOST_PROFILE: ${{ vars.UPLOADPOST_PROFILE }}
+          DRY_RUN: ${{ vars.DRY_RUN }}
+      - name: Save the schedule and calendar
+        if: ${{ always() }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then exit 0; fi
+          git config user.name "signalpost[bot]"
+          git config user.email "signalpost@users.noreply.github.com"
+          git add scheduled.json CALENDAR.md calendar.ics drafts
+          git commit -m "Signalpost: update schedule and calendar"
+          git push
