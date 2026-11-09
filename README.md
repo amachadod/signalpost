@@ -224,5 +224,7 @@ Node.js 20+, no dependencies. Claude Messages API with forced tool use, Upload-P
 
 MIT. Claude, Upload-Post, Instagram, TikTok, YouTube, Facebook, LinkedIn, X, Threads, Pinterest and GitHub are trademarks of their respective owners. Signalpost is an independent project and is not affiliated with any of them.
 
+See how it fits together: [https://amachadod.github.io/ai-front-desk/](https://amachadod.github.io/ai-front-desk/)
+
 ---
 Built by Alberto Machado Domínguez · [albertomachdom@gmail.com](mailto:albertomachdom@gmail.com) · [LinkedIn](https://www.linkedin.com/in/alberto-machado-dom%C3%ADnguez-708290251/)
