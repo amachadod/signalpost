@@ -2,6 +2,8 @@
 
 **Say what goes where and when. Approve it. Done.**
 
+**Who it's for:** social media managers, small studios and brands that post on many networks and want drafts that follow each network's rules.
+
 Give Signalpost your reels, carousels and photos, and say in plain words which network each one goes to and when: "Trailer: Instagram reel, TikTok and YouTube Shorts on Tuesday at 19:00." Claude writes **a native post for every network** in your brand's voice, Signalpost **checks each one against that network's rules**, and nothing is scheduled until **you approve it in a pull request**. Then it goes to [Upload-Post](https://upload-post.com) and onto your **content calendar** (Markdown on GitHub, and an `.ics` file for any calendar app).
 
 👉 **[See the live demo](https://amachadod.github.io/signalpost/)**: an indie game's launch week (in English) and a hotel opening (in Spanish), run through the real code. Click any post in the calendar, then merge the pull request.
@@ -221,3 +223,6 @@ Node.js 20+, no dependencies. Claude Messages API with forced tool use, Upload-P
 ## License
 
 MIT. Claude, Upload-Post, Instagram, TikTok, YouTube, Facebook, LinkedIn, X, Threads, Pinterest and GitHub are trademarks of their respective owners. Signalpost is an independent project and is not affiliated with any of them.
+
+---
+Built by Alberto Machado Domínguez · [albertomachdom@gmail.com](mailto:albertomachdom@gmail.com) · [LinkedIn](https://www.linkedin.com/in/alberto-machado-dom%C3%ADnguez-708290251/)
